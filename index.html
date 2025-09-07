@@ -3,81 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Story Writer</title>
+  <title>Offline Story Writer</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      color: #111827;
+      background: linear-gradient(135deg, #1e3a8a, #9333ea);
+      color: #111;
+      transition: all 0.3s;
+    }
+    body.dark {
+      background: linear-gradient(135deg, #111, #333);
+      color: #eee;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       background: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
+    body.dark .container { background: #1e1e1e; }
     h1 { text-align: center; }
-    .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-    .tab-btn { padding: 6px 12px; border: none; cursor: pointer; border-radius: 6px; }
-    .tab-btn.active { background: #4f46e5; color: #fff; }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    .tab-btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #ddd;
+    }
+    .tab-btn.active {
+      background: #4f46e5;
+      color: #fff;
+    }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    #story-title, #note-input { width: 100%; padding: 8px; margin-bottom: 8px; }
-    #story-content { width: 100%; min-height: 200px; border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; }
-    .action-buttons button { margin-right: 6px; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; }
+    #story-title, #story-content {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    #story-content { min-height: 200px; }
+    .action-buttons button {
+      margin: 5px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
     .save-btn { background: #4f46e5; color: #fff; }
     .clear-btn { background: #f59e0b; }
     .share-btn { background: #16a34a; color: #fff; }
     .pdf-btn { background: #dc2626; color: #fff; }
-    .saved-story-item { padding: 6px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
-    iframe { width: 100%; height: 400px; border: 1px solid #ccc; }
-    #status-message { text-align: center; margin-top: 10px; color: #fff; background: rgba(0,0,0,0.4); padding: 6px; border-radius: 6px; }
-    .help-tools { margin-top: 12px; padding: 10px; background: #f3f4f6; border-radius: 6px; }
+    .toggle-btn { background: #111; color: #fff; float:right; }
+    .saved-story-item {
+      padding: 6px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    iframe {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .help-tools {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f3f4f6;
+      border-radius: 6px;
+    }
+    body.dark .help-tools { background: #2e2e2e; }
+    #status-message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📖 Advanced Story Writer</h1>
-    
+    <button class="toggle-btn" onclick="toggleDark()">🌙 Dark Mode</button>
+    <h1>📖 Offline Story Writer</h1>
+
+    <!-- Tabs -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('editor', this)">Write</button>
-      <button class="tab-btn" onclick="openTab('saved', this)">Saved Stories</button>
-      <button class="tab-btn" onclick="openTab('pdf', this)">PDF Viewer</button>
+      <button class="tab-btn active" onclick="openTab('editor', this)">✍ Write</button>
+      <button class="tab-btn" onclick="openTab('saved', this)">💾 Saved Stories</button>
+      <button class="tab-btn" onclick="openTab('pdf', this)">📄 PDF Viewer</button>
     </div>
 
     <!-- Editor -->
     <div id="editor" class="tab-content active">
       <input type="text" id="story-title" placeholder="Story title...">
-      <div id="story-content" contenteditable="true"></div>
-      <div id="word-count">Word count: 0</div>
+      <textarea id="story-content" placeholder="Write your story..."></textarea>
       
+      <div id="stats">
+        Words: <span id="word-count">0</span> | 
+        Characters: <span id="char-count">0</span> | 
+        Reading time: <span id="read-time">0 min</span>
+      </div>
+
       <div class="action-buttons">
         <button class="save-btn" onclick="saveData()">Save</button>
         <button class="clear-btn" onclick="clearData()">Clear</button>
         <button class="share-btn" onclick="shareStory()">Share</button>
         <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+        <button onclick="autoTitle()">Auto Title</button>
       </div>
 
-      <!-- Writing help -->
+      <!-- Writing Tools -->
       <div class="help-tools">
-        <h3>✍ Writing Help</h3>
+        <h3>🛠 Writing Tools</h3>
         <button onclick="randomPrompt()">Get Prompt</button>
         <button onclick="suggestSynonym()">Suggest Synonym</button>
-        <div id="help-output" style="margin-top:6px; font-style:italic;"></div>
+        <button onclick="countSentences()">Count Sentences</button>
+        <div id="help-output" style="margin-top:8px; font-style:italic;"></div>
       </div>
     </div>
 
-    <!-- Saved Stories -->
+    <!-- Saved -->
     <div id="saved" class="tab-content">
-      <h2>Saved Stories</h2>
+      <h2>💾 Saved Stories</h2>
       <div id="saved-stories-list"></div>
     </div>
 
-    <!-- PDF Viewer -->
+    <!-- PDF -->
     <div id="pdf" class="tab-content">
       <h2>📄 PDF Viewer</h2>
       <iframe id="pdf-frame"></iframe>
@@ -86,14 +150,15 @@
     <div id="status-message"></div>
   </div>
 
-  <!-- Libraries -->
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
     let stories = JSON.parse(localStorage.getItem('stories')) || [];
     let currentStory = { title: '', content: '' };
 
-    document.getElementById('story-content').addEventListener('input', updateWordCount);
+    const storyInput = document.getElementById('story-content');
+    storyInput.addEventListener('input', updateStats);
 
     function openTab(tabName, el) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -103,19 +168,19 @@
     }
 
     function saveData() {
-      currentStory.title = document.getElementById('story-title').value.trim();
-      currentStory.content = document.getElementById('story-content').innerText.trim();
-      if (!currentStory.title) { showStatus('⚠ Enter a title first'); return; }
-      stories.push({...currentStory});
+      let title = document.getElementById('story-title').value.trim();
+      let content = storyInput.value.trim();
+      if (!title || !content) { showStatus("⚠ Title & content required!"); return; }
+      stories.push({title, content});
       localStorage.setItem('stories', JSON.stringify(stories));
       loadSavedStories();
-      showStatus('✅ Story saved!');
+      showStatus("✅ Story saved!");
     }
 
     function clearData() {
       document.getElementById('story-title').value = '';
-      document.getElementById('story-content').innerText = '';
-      updateWordCount();
+      storyInput.value = '';
+      updateStats();
     }
 
     function loadSavedStories() {
@@ -124,76 +189,102 @@
       stories.forEach((s, i) => {
         let div = document.createElement('div');
         div.className = 'saved-story-item';
-        div.innerHTML = `<span>${i+1}. <b>${s.title}</b>: ${s.content.substring(0,40)}...</span>
-          <button onclick="viewPDF(${i})">View PDF</button>`;
+        div.innerHTML = `<span>${i+1}. <b>${s.title}</b></span>
+          <div>
+            <button onclick="loadStory(${i})">Open</button>
+            <button onclick="viewPDF(${i})">View PDF</button>
+          </div>`;
         list.appendChild(div);
       });
     }
 
+    function loadStory(i) {
+      document.getElementById('story-title').value = stories[i].title;
+      storyInput.value = stories[i].content;
+      updateStats();
+      openTab('editor', document.querySelectorAll('.tab-btn')[0]);
+    }
+
     function shareStory() {
-      let text = document.getElementById('story-title').value + "\n\n" + document.getElementById('story-content').innerText;
+      let title = document.getElementById('story-title').value;
+      let text = title + "\n\n" + storyInput.value;
       if (navigator.share) {
-        navigator.share({ title: 'My Story', text });
+        navigator.share({ title, text });
       } else {
-        let url = "https://wa.me/?text=" + encodeURIComponent(text);
-        window.open(url, "_blank");
+        alert("Copy & share manually:\n\n" + text);
       }
     }
 
-    function updateWordCount() {
-      let text = document.getElementById('story-content').innerText.trim();
-      let count = text ? text.split(/\s+/).length : 0;
-      document.getElementById('word-count').innerText = "Word count: " + count;
+    function updateStats() {
+      let text = storyInput.value.trim();
+      let words = text ? text.split(/\s+/).length : 0;
+      let chars = text.length;
+      let time = Math.ceil(words/200);
+      document.getElementById('word-count').innerText = words;
+      document.getElementById('char-count').innerText = chars;
+      document.getElementById('read-time').innerText = time;
     }
 
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.text(document.getElementById('story-title').value, 10, 10);
-      doc.text(document.getElementById('story-content').innerText, 10, 20);
+      doc.text(storyInput.value, 10, 20);
       doc.save("story.pdf");
     }
 
-    function viewPDF(index) {
+    function viewPDF(i) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.text(stories[index].title, 10, 10);
-      doc.text(stories[index].content, 10, 20);
-      let pdfData = doc.output('bloburl');
-      document.getElementById('pdf-frame').src = pdfData;
+      doc.text(stories[i].title, 10, 10);
+      doc.text(stories[i].content, 10, 20);
+      let url = doc.output('bloburl');
+      document.getElementById('pdf-frame').src = url;
       openTab('pdf', document.querySelectorAll('.tab-btn')[2]);
     }
 
-    // Writing help
+    // Writing tools
     const prompts = [
-      "Write a story about a lost traveler in space.",
-      "Imagine if animals could talk for one day.",
-      "Describe a secret hidden in an old diary."
+      "Write about a magical door that appears in your room.",
+      "A letter arrives from the future. What does it say?",
+      "Describe a world where people never sleep."
     ];
     function randomPrompt() {
       let rand = prompts[Math.floor(Math.random()*prompts.length)];
       document.getElementById('help-output').innerText = "Prompt: " + rand;
     }
     function suggestSynonym() {
-      const words = ["happy","sad","fast","slow"];
       const synonyms = {
-        "happy":"joyful, glad, content",
-        "sad":"unhappy, gloomy, downcast",
-        "fast":"quick, speedy, rapid",
-        "slow":"sluggish, unhurried, lazy"
+        happy:["joyful","glad","cheerful"],
+        sad:["gloomy","unhappy","blue"],
+        fast:["quick","speedy","rapid"],
+        slow:["sluggish","leisurely","lazy"]
       };
-      let rand = words[Math.floor(Math.random()*words.length)];
-      document.getElementById('help-output').innerText = `Synonyms for "${rand}": ${synonyms[rand]}`;
+      let keys = Object.keys(synonyms);
+      let word = keys[Math.floor(Math.random()*keys.length)];
+      document.getElementById('help-output').innerText = 
+        `Synonyms for "${word}": ${synonyms[word].join(", ")}`;
     }
+    function countSentences() {
+      let text = storyInput.value;
+      let count = text.split(/[.!?]/).filter(s=>s.trim().length>0).length;
+      document.getElementById('help-output').innerText =` Sentence count: ${count}`;
+    }
+    function autoTitle() {
+      let text = storyInput.value.trim().split(/\s+/).slice(0,3).join(" ");
+      document.getElementById('story-title').value = text || "Untitled Story";
+    }
+
+    function toggleDark() { document.body.classList.toggle("dark"); }
 
     function showStatus(msg) {
-      let status = document.getElementById('status-message');
-      status.innerText = msg;
-      setTimeout(()=>status.innerText="",3000);
+      let el = document.getElementById('status-message');
+      el.innerText = msg;
+      setTimeout(()=>el.innerText="",3000);
     }
 
-    // Init
     loadSavedStories();
+    updateStats();
   </script>
 </body>
 </html>
