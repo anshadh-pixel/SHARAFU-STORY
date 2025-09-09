@@ -1,290 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Story Writer</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #1e3a8a, #9333ea);
-      color: #111;
-      transition: all 0.3s;
-    }
-    body.dark {
-      background: linear-gradient(135deg, #111, #333);
-      color: #eee;
-    }
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    body.dark .container { background: #1e1e1e; }
-    h1 { text-align: center; }
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    .tab-btn {
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #ddd;
-    }
-    .tab-btn.active {
-      background: #4f46e5;
-      color: #fff;
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    #story-title, #story-content {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    #story-content { min-height: 200px; }
-    .action-buttons button {
-      margin: 5px;
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-    .save-btn { background: #4f46e5; color: #fff; }
-    .clear-btn { background: #f59e0b; }
-    .share-btn { background: #16a34a; color: #fff; }
-    .pdf-btn { background: #dc2626; color: #fff; }
-    .toggle-btn { background: #111; color: #fff; float:right; }
-    .saved-story-item {
-      padding: 6px;
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    iframe {
-      width: 100%;
-      height: 400px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    .help-tools {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f3f4f6;
-      border-radius: 6px;
-    }
-    body.dark .help-tools { background: #2e2e2e; }
-    #status-message {
-      text-align: center;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Story Writing App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #5a89ff, #00d4ff);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.97);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        #title {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        #title:focus {
+            border-color: #5a89ff;
+            box-shadow: 0 0 6px rgba(90, 137, 255, 0.3);
+            outline: none;
+        }
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .toolbar button {
+            padding: 8px 12px;
+            background: #5a89ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .toolbar button:hover {
+            background: #4466cc;
+            transform: scale(1.05);
+        }
+        #color {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+        }
+        #content {
+            width: 100%;
+            min-height: 250px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            line-height: 1.5;
+            background: #fff;
+        }
+        #content:focus {
+            border-color: #5a89ff;
+            box-shadow: 0 0 6px rgba(90, 137, 255, 0.3);
+            outline: none;
+        }
+        #notes {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        #notes:focus {
+            border-color: #5a89ff;
+            outline: none;
+        }
+        .note {
+            background: #e8f0ff;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .note button {
+            background: #ff4d4f;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+        .note button:hover {
+            background: #e63946;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .action-buttons button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: white;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .save-btn { background: #28a745; }
+        .save-btn:hover { background: #218838; transform: scale(1.05); }
+        .new-btn { background: #17a2b8; }
+        .new-btn:hover { background: #138496; transform: scale(1.05); }
+        .load-btn { background: #ffc107; color: #2d2d2d; }
+        .load-btn:hover { background: #e0a800; transform: scale(1.05); }
+        .pdf-btn { background: #ff6b6b; }
+        .pdf-btn:hover { background: #e65c5c; transform: scale(1.05); }
+        .share-btn { background: #25D366; }
+        .share-btn:hover { background: #1ebd57; transform: scale(1.05); }
+        #status {
+            text-align: center;
+            color: #fff;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        #stories {
+            margin-top: 15px;
+            background: #f8f9ff;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        #story-list button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: #e8f0ff;
+            border: none;
+            border-radius: 5px;
+            text-align: left;
+            cursor: pointer;
+        }
+        #story-list button:hover {
+            background: #d0e0ff;
+        }
+        #puzzle {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            gap: 2px;
+            margin: 15px auto;
+            width: fit-content;
+        }
+        .tile {
+            width: 50px;
+            height: 50px;
+            background: #5a89ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .tile.empty {
+            background: transparent;
+            cursor: default;
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.6em; }
+            #content { min-height: 200px; }
+            #puzzle { grid-template-columns: repeat(3, 40px); }
+            .tile { width: 40px; height: 40px; font-size: 1em; }
+            .action-buttons { flex-direction: column; }
+            .toolbar { justify-content: center; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <button class="toggle-btn" onclick="toggleDark()">🌙 Dark Mode</button>
-    <h1>📖 Offline Story Writer</h1>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('editor', this)">✍ Write</button>
-      <button class="tab-btn" onclick="openTab('saved', this)">💾 Saved Stories</button>
-      <button class="tab-btn" onclick="openTab('pdf', this)">📄 PDF Viewer</button>
+    <div class="container">
+        <h1>Story Writing App</h1>
+        <input type="text" id="title" placeholder="Story Title">
+        <div class="toolbar">
+            <button onclick="bold()"><i class="fas fa-bold"></i> Bold</button>
+            <button onclick="italic()"><i class="fas fa-italic"></i> Italic</button>
+            <button onclick="underline()"><i class="fas fa-underline"></i> Underline</button>
+            <input type="color" id="color" title="Pick a color">
+            <button onclick="document.getElementById('image').click()"><i class="fas fa-image"></i> Image</button>
+            <input type="file" id="image" accept="image/*" style="display:none" onchange="insertImage()">
+        </div>
+        <div id="content" contenteditable="true" placeholder="Write your story..."></div>
+        <textarea id="notes" placeholder="Add notes..." onkeypress="if(event.key==='Enter') addNote()"></textarea>
+        <button onclick="addNote()"><i class="fas fa-plus"></i> Add Note</button>
+        <div id="notes-list"></div>
+        <div class="action-buttons">
+            <button class="save-btn" onclick="save()">Save</button>
+            <button class="new-btn" onclick="newStory()">New Story</button>
+            <button class="load-btn" onclick="loadStories()">Load Stories</button>
+            <button class="pdf-btn" onclick="exportPDF()">PDF Export</button>
+            <button class="share-btn" onclick="share()">Share</button>
+        </div>
+        <div id="status"></div>
+        <div id="stories" style="display:none;">
+            <h3>Saved Stories</h3>
+            <div id="story-list"></div>
+        </div>
+        <div style="margin-top:20px;">
+            <h3>Slide Puzzle</h3>
+            <div id="puzzle"></div>
+            <button onclick="shufflePuzzle()">Shuffle</button>
+        </div>
     </div>
+    <script>
+        let currentId = localStorage.getItem('currentId') || Date.now().toString();
+        let notes = [];
+        let tiles = [1, 2, 3, 4, 5, 6, 7, 8, 0];
 
-    <!-- Editor -->
-    <div id="editor" class="tab-content active">
-      <input type="text" id="story-title" placeholder="Story title...">
-      <textarea id="story-content" placeholder="Write your story..."></textarea>
-      
-      <div id="stats">
-        Words: <span id="word-count">0</span> | 
-        Characters: <span id="char-count">0</span> | 
-        Reading time: <span id="read-time">0 min</span>
-      </div>
+        window.onload = () => {
+            if (!localStorageAvailable()) {
+                showStatus('Error: localStorage not available. Try normal browser mode.');
+                return;
+            }
+            load();
+            initPuzzle();
+        };
 
-      <div class="action-buttons">
-        <button class="save-btn" onclick="saveData()">Save</button>
-        <button class="clear-btn" onclick="clearData()">Clear</button>
-        <button class="share-btn" onclick="shareStory()">Share</button>
-        <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
-        <button onclick="autoTitle()">Auto Title</button>
-      </div>
+        function localStorageAvailable() {
+            try {
+                let test = '__test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                console.error('localStorage error:', e);
+                return false;
+            }
+        }
 
-      <!-- Writing Tools -->
-      <div class="help-tools">
-        <h3>🛠 Writing Tools</h3>
-        <button onclick="randomPrompt()">Get Prompt</button>
-        <button onclick="suggestSynonym()">Suggest Synonym</button>
-        <button onclick="countSentences()">Count Sentences</button>
-        <div id="help-output" style="margin-top:8px; font-style:italic;"></div>
-      </div>
-    </div>
+        function bold() { document.execCommand('styleWithCSS', false, null); document.execCommand('bold'); }
+        function italic() { document.execCommand('styleWithCSS', false, null); document.execCommand('italic'); }
+        function underline() { document.execCommand('styleWithCSS', false, null); document.execCommand('underline'); }
+        function changeColor() { 
+            document.execCommand('styleWithCSS', false, null);
+            document.execCommand('foreColor', false, document.getElementById('color').value); 
+        }
+        function insertImage() {
+            let file = document.getElementById('image').files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showStatus('Image too large (max 2MB)');
+                    return;
+                }
+                let reader = new FileReader();
+                reader.onload = e => {
+                    let img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '150px';
+                    document.getElementById('content').appendChild(img);
+                    showStatus('Image added (not in PDF)');
+                    save();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-    <!-- Saved -->
-    <div id="saved" class="tab-content">
-      <h2>💾 Saved Stories</h2>
-      <div id="saved-stories-list"></div>
-    </div>
+        function addNote() {
+            let noteText = document.getElementById('notes').value.trim();
+            if (noteText) {
+                notes.push(noteText);
+                document.getElementById('notes').value = '';
+                showNotes();
+                save();
+                showStatus('Note added');
+            } else {
+                showStatus('Type a note first');
+            }
+        }
 
-    <!-- PDF -->
-    <div id="pdf" class="tab-content">
-      <h2>📄 PDF Viewer</h2>
-      <iframe id="pdf-frame"></iframe>
-    </div>
+        function showNotes() {
+            let list = document.getElementById('notes-list');
+            list.innerHTML = '';
+            notes.forEach((note, i) => {
+                let div = document.createElement('div');
+                div.className = 'note';
+                div.innerHTML = `${note} <button onclick="deleteNote(${i})"><i class="fas fa-trash"></i></button>`;
+                list.appendChild(div);
+            });
+        }
 
-    <div id="status-message"></div>
-  </div>
+        function deleteNote(i) {
+            notes.splice(i, 1);
+            showNotes();
+            save();
+            showStatus('Note deleted');
+        }
 
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        function save() {
+            if (!localStorageAvailable()) {
+                showStatus('Cannot save: localStorage unavailable');
+                return;
+            }
+            try {
+                let data = {
+                    title: document.getElementById('title').value,
+                    content: document.getElementById('content').innerHTML,
+                    notes: notes
+                };
+                let stories = JSON.parse(localStorage.getItem('stories')) || {};
+                stories[currentId] = data;
+                localStorage.setItem('stories', JSON.stringify(stories));
+                localStorage.setItem('currentId', currentId);
+                showStatus('Story saved!');
+                console.log('Saved story:', currentId, data);
+            } catch (e) {
+                showStatus('Save failed: ' + e.message);
+                console.error('Save error:', e);
+            }
+        }
 
-  <script>
-    let stories = JSON.parse(localStorage.getItem('stories')) || [];
-    let currentStory = { title: '', content: '' };
+        function load() {
+            if (!localStorageAvailable()) return;
+            try {
+                let stories = JSON.parse(localStorage.getItem('stories')) || {};
+                if (stories[currentId]) {
+                    let data = stories[currentId];
+                    document.getElementById('title').value = data.title || '';
+                    document.getElementById('content').innerHTML = data.content || '';
+                    notes = data.notes || [];
+                    showNotes();
+                    showStatus('Story loaded');
+                    console.log('Loaded story:', currentId);
+                }
+            } catch (e) {
+                showStatus('Load failed: ' + e.message);
+                console.error('Load error:', e);
+            }
+        }
 
-    const storyInput = document.getElementById('story-content');
-    storyInput.addEventListener('input', updateStats);
+        function newStory() {
+            currentId = Date.now().toString();
+            document.getElementById('title').value = '';
+            document.getElementById('content').innerHTML = '';
+            notes = [];
+            showNotes();
+            save();
+            showStatus('New story created');
+        }
 
-    function openTab(tabName, el) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(tabName).classList.add('active');
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-    }
+        function loadStories() {
+            let div = document.getElementById('stories');
+            let list = document.getElementById('story-list');
+            list.innerHTML = '';
+            let stories = JSON.parse(localStorage.getItem('stories')) || {};
+            if (!Object.keys(stories).length) {
+                list.innerHTML = '<p>No saved stories</p>';
+            } else {
+                Object.keys(stories).forEach(id => {
+                    let btn = document.createElement('button');
+                    btn.innerText = stories[id].title || `Untitled (${new Date(parseInt(id)).toLocaleString()})`;
+                    btn.onclick = () => {
+                        currentId = id;
+                        load();
+                        div.style.display = 'none';
+                        showStatus('Story loaded');
+                    };
+                    list.appendChild(btn);
+                });
+            }
+            div.style.display = 'block';
+        }
 
-    function saveData() {
-      let title = document.getElementById('story-title').value.trim();
-      let content = storyInput.value.trim();
-      if (!title || !content) { showStatus("⚠ Title & content required!"); return; }
-      stories.push({title, content});
-      localStorage.setItem('stories', JSON.stringify(stories));
-      loadSavedStories();
-      showStatus("✅ Story saved!");
-    }
+        function exportPDF() {
+            try {
+                let { jsPDF } = window.jspdf;
+                let doc = new jsPDF();
+                let title = document.getElementById('title').value || 'Story';
+                doc.setFontSize(16);
+                doc.text(title, 10, 10);
+                doc.setFontSize(12);
+                let content = document.getElementById('content').innerText || 'No content';
+                let splitContent = doc.splitTextToSize(content, 180);
+                doc.text(splitContent, 10, 20);
+                let y = 20 + splitContent.length * 7;
+                doc.text('Notes:', 10, y);
+                let noteText = notes.join('\n') || 'No notes';
+                doc.text(noteText, 10, y + 10);
+                doc.save(title + '.pdf');
+                showStatus('PDF exported (text only)');
+            } catch (e) {
+                showStatus('PDF export failed: ' + e.message);
+                console.error('PDF error:', e);
+            }
+        }
 
-    function clearData() {
-      document.getElementById('story-title').value = '';
-      storyInput.value = '';
-      updateStats();
-    }
+        function share() {
+            let text = document.getElementById('title').value + '\n' + document.getElementById('content').innerText + '\nNotes:\n' + notes.join('\n');
+            if (navigator.share) {
+                navigator.share({ title: 'My Story', text: text }).catch(e => console.error('Share error:', e));
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            }
+            showStatus('Sharing...');
+        }
 
-    function loadSavedStories() {
-      let list = document.getElementById('saved-stories-list');
-      list.innerHTML = '';
-      stories.forEach((s, i) => {
-        let div = document.createElement('div');
-        div.className = 'saved-story-item';
-        div.innerHTML = `<span>${i+1}. <b>${s.title}</b></span>
-          <div>
-            <button onclick="loadStory(${i})">Open</button>
-            <button onclick="viewPDF(${i})">View PDF</button>
-          </div>`;
-        list.appendChild(div);
-      });
-    }
+        function initPuzzle() {
+            let puzzle = document.getElementById('puzzle');
+            puzzle.innerHTML = '';
+            tiles.forEach((tile, i) => {
+                let div = document.createElement('div');
+                div.className = 'tile' + (tile === 0 ? ' empty' : '');
+                div.innerText = tile || '';
+                div.onclick = () => moveTile(i);
+                puzzle.appendChild(div);
+            });
+        }
 
-    function loadStory(i) {
-      document.getElementById('story-title').value = stories[i].title;
-      storyInput.value = stories[i].content;
-      updateStats();
-      openTab('editor', document.querySelectorAll('.tab-btn')[0]);
-    }
+        function shufflePuzzle() {
+            for (let i = tiles.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+            }
+            initPuzzle();
+            showStatus('Puzzle shuffled');
+        }
 
-    function shareStory() {
-      let title = document.getElementById('story-title').value;
-      let text = title + "\n\n" + storyInput.value;
-      if (navigator.share) {
-        navigator.share({ title, text });
-      } else {
-        alert("Copy & share manually:\n\n" + text);
-      }
-    }
+        function moveTile(i) {
+            let empty = tiles.indexOf(0);
+            if (Math.abs(i - empty) === 1 || Math.abs(i - empty) === 3) {
+                [tiles[i], tiles[empty]] = [tiles[empty], tiles[i]];
+                initPuzzle();
+                if (tiles.join('') === '123456780') {
+                    showStatus('Puzzle solved!');
+                    alert('Puzzle solved! 🎉');
+                }
+            }
+        }
 
-    function updateStats() {
-      let text = storyInput.value.trim();
-      let words = text ? text.split(/\s+/).length : 0;
-      let chars = text.length;
-      let time = Math.ceil(words/200);
-      document.getElementById('word-count').innerText = words;
-      document.getElementById('char-count').innerText = chars;
-      document.getElementById('read-time').innerText = time;
-    }
-
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text(document.getElementById('story-title').value, 10, 10);
-      doc.text(storyInput.value, 10, 20);
-      doc.save("story.pdf");
-    }
-
-    function viewPDF(i) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text(stories[i].title, 10, 10);
-      doc.text(stories[i].content, 10, 20);
-      let url = doc.output('bloburl');
-      document.getElementById('pdf-frame').src = url;
-      openTab('pdf', document.querySelectorAll('.tab-btn')[2]);
-    }
-
-    // Writing tools
-    const prompts = [
-      "Write about a magical door that appears in your room.",
-      "A letter arrives from the future. What does it say?",
-      "Describe a world where people never sleep."
-    ];
-    function randomPrompt() {
-      let rand = prompts[Math.floor(Math.random()*prompts.length)];
-      document.getElementById('help-output').innerText = "Prompt: " + rand;
-    }
-    function suggestSynonym() {
-      const synonyms = {
-        happy:["joyful","glad","cheerful"],
-        sad:["gloomy","unhappy","blue"],
-        fast:["quick","speedy","rapid"],
-        slow:["sluggish","leisurely","lazy"]
-      };
-      let keys = Object.keys(synonyms);
-      let word = keys[Math.floor(Math.random()*keys.length)];
-      document.getElementById('help-output').innerText = 
-        `Synonyms for "${word}": ${synonyms[word].join(", ")}`;
-    }
-    function countSentences() {
-      let text = storyInput.value;
-      let count = text.split(/[.!?]/).filter(s=>s.trim().length>0).length;
-      document.getElementById('help-output').innerText =` Sentence count: ${count}`;
-    }
-    function autoTitle() {
-      let text = storyInput.value.trim().split(/\s+/).slice(0,3).join(" ");
-      document.getElementById('story-title').value = text || "Untitled Story";
-    }
-
-    function toggleDark() { document.body.classList.toggle("dark"); }
-
-    function showStatus(msg) {
-      let el = document.getElementById('status-message');
-      el.innerText = msg;
-      setTimeout(()=>el.innerText="",3000);
-    }
-
-    loadSavedStories();
-    updateStats();
-  </script>
+        function showStatus(msg) {
+            let status = document.getElementById('status');
+            status.innerText = msg;
+            setTimeout(() => status.innerText = '', 3000);
+        }
+    </script>
 </body>
 </html>
